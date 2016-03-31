@@ -3,18 +3,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DataGroup {
+	final String price ="PX_LAST";
+	
 	int year, month, day;
 	String security;
-	String industry;
 	Map<String, Double> values;
+	Value px;
 	
 	public DataGroup(String security){
 		this.year = -1;
 		this.month = -1;
 		this.day = -1;
 		this.security = security;
-		this.industry = "nullD";
 		this.values = new HashMap<String, Double>();
+		this.px =null;
 	}
 	
 	public void enterData(String field, String x){
@@ -27,5 +29,15 @@ public class DataGroup {
 		else{
 			values.put(field, Double.parseDouble(x));
 		}
+	}
+	//initializes px object and removes Price from the list
+	public void pxGen(){
+		if(values.containsKey(price)){
+			px = new Value(security,tools.convertToQuarter(year, month), values.get(price));
+			values.remove(price);
+		}
+	}
+	public boolean hasPx(){
+		return px!=null;
 	}
 }
