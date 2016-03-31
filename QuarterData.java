@@ -78,11 +78,13 @@ public class QuarterData {
 		Map<String, Map <Integer,QuarterData>> dataMap = tools.convertToMap(dataC.quarters);
 		Map<String, Map <Integer,Value>> foundPrices = new HashMap<String, Map<Integer, Value>>();
 		Set<String> missing = new HashSet<String>();
+		
 		for(int i = 0; i<dataC.forwardQrtrs.length;i++){
 			int qrt = dataC.forwardQrtrs[i];
+			
 			Map<Integer, Double> mktPerc = tools.convertToPerc(dataC.index,qrt);
 			List<QuarterData> lsTerminal = new ArrayList<QuarterData>();
-			System.out.println("checking gathered data " + qrt + " amount: " + lsLookup.size());
+			System.out.println("checking gathered data q" + qrt + " amount: " + lsLookup.size());
 			//check other QuarterDatas
 			for(QuarterData current: lsLookup){
 				Integer futureDate = tools.iterateDate(current.getDateCode(), qrt);
@@ -95,7 +97,7 @@ public class QuarterData {
 					lsTerminal.add(current);
 			}
 			List<QuarterData> lsToQuery = new ArrayList<QuarterData>();
-			System.out.println("checking terminal values " + qrt + " amount: " + lsTerminal.size());
+			System.out.println("checking terminal values q" + qrt + " amount: " + lsTerminal.size());
 			//check terminal values                        
 			for(QuarterData current:lsTerminal){
 				double terminalPrice = findTerminalPrice(current,tools.iterateDate(current.getDateCode(), qrt),dataC.terminalPrices);
@@ -104,7 +106,7 @@ public class QuarterData {
 				else
 					lsToQuery.add(current);
 			}
-			System.out.println("querying Bloomberg " + qrt + " looking for: " + lsToQuery.size());
+			System.out.println("querying Bloomberg q" + qrt + " looking for: " + lsToQuery.size());
 			//check Bloomberg prices
 			int notFoundCount= 0;
 			for(QuarterData current:lsToQuery){

@@ -9,6 +9,6 @@ public class Value {
 		this.value = value;
 	}
 	public String toString(){
-		return "TV: " + security + "; " + date + "; " + value;
+		return "Val: " + security + "; " + date + "; " + value;
 	}
 }

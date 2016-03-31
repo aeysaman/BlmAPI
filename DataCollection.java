@@ -39,10 +39,7 @@ public class DataCollection {
 	int jump = 50; 	// how many securities per request
 	
 	int[] forwardQrtrs = {1,2,4}; //must be of size 3
-	
-	
-	
-	
+
 	//internal usage
 	Session session;
 	Service service;
