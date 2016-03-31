@@ -1,14 +1,9 @@
 package gather;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import com.bloomberglp.blpapi.Service;
-import com.bloomberglp.blpapi.Session;
 
 public class QuarterData {
 	int year, quarter;
@@ -62,12 +57,8 @@ public class QuarterData {
 			return false;
 		return true;
 	}
-	public void setTerminalPrice(int i, double terminalPrice, Double beta) {
-		this.premium[i] = terminalPrice-beta;
-	}
-	public void setPrice(int i, double futurePrice, String ps, Double beta){
-		if(this.hasFieldVal(ps)&& futurePrice!=0.0)
-			this.forward[i] = (futurePrice - this.fieldToVal(ps))/this.fieldToVal(ps) - beta;
+	public void setTerminalPrice(int i, double terminalPrice) {
+		this.premium[i] = terminalPrice;
 	}
 	//Entering Fundamentals
 	public static Map<String, Map<Integer, QuarterData>> generateQuarters(List<String> securities,List<String> fields, int yr){

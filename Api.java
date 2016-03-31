@@ -16,7 +16,7 @@ import com.bloomberglp.blpapi.SessionOptions;
 public class Api {
 
 	//goes through the event looking for a price field, and returns this price once found. If no price is found -1.0 is returned
-	public static Double handleResponseEventPrice(Event event) throws Exception {
+	public static Value handleResponseEventPrice(Event event, String security) throws Exception {
 		MessageIterator iter = event.messageIterator();
 		 while (iter.hasNext()) {
 			Message message = iter.next();
@@ -24,17 +24,29 @@ public class Api {
 			Element fieldDataArray = securityData.getElement("fieldData");
 			for (int i = 0; i < fieldDataArray.numValues(); i++) {
 				Element fieldData = fieldDataArray.getValueAsElement(i);
+				
+				int year=0,month=0,day=0;
+				Double d =null;
 				for(int j = 0; j<fieldData.numElements(); j++){
 					Element field = fieldData.getElement(j);
 					if(field.name().toString().equals("PX_LAST"))
-						return Double.parseDouble(field.getValueAsString());
+						d = Double.parseDouble(field.getValueAsString());
+					else if(field.name().toString().equals("date")){
+						String[] bar = field.getValueAsString().split("-");
+						year = Integer.parseInt(bar[0]);
+						month = Integer.parseInt(bar[1]);
+						day = Integer.parseInt(bar[2]);
+					}
+				}
+				if(d!=null){
+					return new Value(security, d, year, month, day);
 				}
 			}
 		 }
-		 return -1.0;
+		 return null;
 	}
 	//sends a request for the security in the given quarter. Once the event is collected, it returns the value from handleResponseEventPrice
-	public static Double requestPrice(String security, int futureDate, Session session, Service service) {
+	public static Value requestPrice(String security, int futureDate, Session session, Service service) {
 		try {
 			Request req = service.createRequest("HistoricalDataRequest");
 			req.getElement("fields").appendValue("PX_LAST");
@@ -53,19 +65,18 @@ public class Api {
 					case Event.EventType.Constants.RESPONSE: // final event
 						continueToLoop = false; // fall through
 					case Event.EventType.Constants.PARTIAL_RESPONSE:
-						Double d = handleResponseEventPrice(event);
-						return d;
+						return handleResponseEventPrice(event, security);
 					default:
 						handleOtherEvent(event);
 						break;
 				}
 			}
 			System.out.println("\tnot found");
-			return -1.0;
+			return null;
 		} catch (Exception e) {
 			System.out.println("error in sending request");
 			e.printStackTrace();
-			return -1.0;
+			return null;
 		}
 	}
 	//setup information, written by Bloomberg

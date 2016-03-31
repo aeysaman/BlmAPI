@@ -33,7 +33,7 @@ public class DataGroup {
 	//initializes px object and removes Price from the list
 	public void pxGen(){
 		if(values.containsKey(price)){
-			px = new Value(security,tools.convertToQuarter(year, month), values.get(price));
+			px = new Value(security,values.get(price), year, month,day);
 			values.remove(price);
 		}
 	}

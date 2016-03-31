@@ -59,16 +59,18 @@ public class tools {
 			System.out.println(key.toString() + " -> " + x.get(key));
 		}
 	}
-	public static Map<Integer, Double> readIndex(File f){
-		Map<Integer, Double> result = new HashMap<Integer,Double>();
+	public static Map<String, Value> readIndex(File f){
+		Map<String, Value> result = new HashMap<String, Value>();
 		Scanner fileReader = openScan(f);
 		while (fileReader.hasNextLine()){ 
 			String[] items = fileReader.nextLine().split(",");
-			String[] date = items[0].split("-");
-			int year = Integer.parseInt(date[0]);
+			String[] date = items[0].split("/");
+			int year = Integer.parseInt(date[2]);
 			int month = Integer.parseInt(date[1]);
+			int day = Integer.parseInt(date[1]);
 			Double x = Double.parseDouble(items[1]);
-			result.put(convertToQuarter(year, month), x);
+			Value v = new Value("index", x, year, month, day);
+			result.put(v.dateString(), v);
 		}
 		fileReader.close();
 		return result;
@@ -132,8 +134,8 @@ public class tools {
 			String[] s = scan.nextLine().split(",");
 			String security = s[0] + " Equity";
 			String[] date = s[1].split("/");
-			int dateNum = convertToQuarter(Integer.parseInt(date[2]),Integer.parseInt(date[0]));
-			result.put(security, new Value(security, dateNum, Double.parseDouble(s[2])));
+			Value v = new Value(security,Double.parseDouble(s[2]),Integer.parseInt(date[2]), Integer.parseInt(date[0]), Integer.parseInt(date[1]) );
+			result.put(security, v);
 		}
 		return result;
 	}

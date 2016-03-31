@@ -1,5 +1,3 @@
-//test
-//test 2
 package gather;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -12,14 +10,9 @@ import java.util.Map;
 import java.util.Set;
 
 import com.bloomberglp.blpapi.CorrelationID;
-import com.bloomberglp.blpapi.Element;
-import com.bloomberglp.blpapi.Event;
-import com.bloomberglp.blpapi.Message;
-import com.bloomberglp.blpapi.MessageIterator;
 import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
-import com.bloomberglp.blpapi.SessionOptions;
 
 public class DataCollection {
 	
@@ -47,7 +40,7 @@ public class DataCollection {
 	public final String ps = "PX_LAST";
 	
 	Map<String, Value> terminalPrices; 			//maps the Securities name to its time and premium for M&A
-	Map<Integer, Double> index;					//maps quarters to the index price
+	Map<String, Value> index;					//maps quarters to the index price
 	Map<String, String> fieldsMap;				//maps the Bloomberg code to the fields real name
 	List<String> fields;						//list of Bloomberg field names
 	List<String> reFields;						//list of real names of the Bloomberg codes, in the same order
