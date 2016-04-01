@@ -92,7 +92,8 @@ public class QuarterData {
 			for(QuarterData q: m.values()){
 				if(q.px==null)
 					System.out.println("missing price: " + q.security +" " + q.exportDate());
-				result.add(q);
+				else
+					result.add(q);
 			}
 		}
 		return result;

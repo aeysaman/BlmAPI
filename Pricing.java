@@ -91,8 +91,10 @@ public class Pricing {
 			if(!foundPrices.containsKey(current.security))
 				foundPrices.put(current.security, new HashMap<Integer, Value>());
 			
-			if(foundPrices.get(current.security).containsKey(futureDate));
-				//current.setPrice(i, foundPrices.get(current.security).get(futureDate), dataC.ps, beta);
+			if(foundPrices.get(current.security).containsKey(futureDate))
+				setReturn(current, current.px ,foundPrices.get(current.security).get(futureDate), dataC, i);
+			else
+				notFound.add(current);
 		}
 		return notFound;
 	}

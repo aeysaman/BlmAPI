@@ -66,7 +66,7 @@ public class tools {
 			String[] items = fileReader.nextLine().split(",");
 			String[] date = items[0].split("/");
 			int year = Integer.parseInt(date[2]);
-			int month = Integer.parseInt(date[1]);
+			int month = Integer.parseInt(date[0]);
 			int day = Integer.parseInt(date[1]);
 			Double x = Double.parseDouble(items[1]);
 			Value v = new Value("index", x, year, month, day);
