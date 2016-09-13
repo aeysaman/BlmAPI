@@ -14,6 +14,9 @@ import com.bloomberglp.blpapi.Request;
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 
+import general.Read;
+import general.Tools;
+
 public class DataCollection {
 	
 	//set by User
@@ -48,7 +51,6 @@ public class DataCollection {
 	List<QuarterData> quarters;					//List of all QuarterData elements, the meat of the analysis
 	Set<String> missing;						//all securities whose forward prices could not be found
 	
-	
 	public DataCollection(String[] args){
 		session =Api.setupSession();
 		service = session.getService("//blp/refdata");
@@ -57,29 +59,25 @@ public class DataCollection {
 		endYr = Integer.parseInt(args[1]);
 	}
 	public static void main(String[] args) {
-		
 		DataCollection data = new DataCollection(args);
 		
 		data.readFiles();
-		
 		data.gatherData();
 		
 		Pricing.calculateForwards(data);
-
-		tools.printSetToFile(data.missingFile, data.missing);
+		Tools.printSetToFile(data.missingFile, data.missing);
 		
 		data.renameFields();
-		
 		data.printQuarters();
 		
 		System.out.println("All Done!");
 	}
 	public void readFiles(){
-		terminalPrices = tools.readTerminalValues(terminalFile);
-		index = tools.readIndex(indexFile);
+		terminalPrices = Read.readTerminalValues(terminalFile);
+		index = Read.readIndex(indexFile);
 		
 		fields = new ArrayList<String>();
-		fieldsMap = tools.readCSVtoMap(fieldsFile);
+		fieldsMap = Read.readCSVtoMap(fieldsFile);
 		for(String s : fieldsMap.keySet())
 			fields.add(s);
 		
@@ -88,7 +86,7 @@ public class DataCollection {
 		System.out.println("Years: " + startYr + " to " + endYr);
 		System.out.println("fields: " + fields.toString());
 		
-		securitiesByYear = tools.readAllSecurities(secByYrFile);
+		securitiesByYear = Read.readAllSecurities(secByYrFile);
 	}
 	private void renameFields() {
 		List<String> s = new ArrayList<String>();
@@ -134,12 +132,12 @@ public class DataCollection {
 			int weedCount=0;
 			BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outFile));
 			BufferedWriter weedFileWriter = new BufferedWriter(new FileWriter(weedFile));
-			fileWriter.write("Security,Date,DateNum," + titleJoin("Forward", forwardQrtrs) + titleJoin("Premium", forwardQrtrs) + tools.joinListS(reFields) + "\n");
+			fileWriter.write("Security,Date,DateNum," + titleJoin("Forward", forwardQrtrs) + titleJoin("Premium", forwardQrtrs) + Tools.joinListS(reFields) + "\n");
 			for(QuarterData bar : quarters){
 				if(bar.missingCount() <=weed)
 					fileWriter.write(bar.export()+ "\n");
 				else{
-					weedFileWriter.write(bar.security + "," + bar.exportDate() + "," + bar.missingCount() + "\n");
+					weedFileWriter.write(bar.name + "," + bar.date.toString() + "," + bar.missingCount() + "\n");
 					weedCount++;
 				}
 			}
@@ -148,7 +146,7 @@ public class DataCollection {
 			System.out.println("Amount weeded: " + weedCount);
 		}
 		catch(Exception e){
-			tools.exceptionEnd("error in printing", e);
+			Tools.exceptionEnd("error in printing", e);
 		}
 	}
 	public static String titleJoin(String label, int[] qrts){
@@ -157,12 +155,4 @@ public class DataCollection {
 			result+=label + (qrts[i]*3) + "m,";
 		return result;
 	}
-	
-	
-	
-	
-	
-	
-	
-	
 }

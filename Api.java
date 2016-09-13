@@ -13,6 +13,8 @@ import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
 import com.bloomberglp.blpapi.SessionOptions;
 
+import general.Tools;
+
 public class Api {
 
 	//goes through the event looking for a price field, and returns this price once found. If no price is found -1.0 is returned
@@ -53,7 +55,7 @@ public class Api {
 			req.getElement("securities").appendValue(security);
 			
 			req.set("startDate", formatDate(futureDate, 1));
-			req.set("endDate", formatDate(tools.iterateDate(futureDate, 1), 28));
+			req.set("endDate", formatDate(Tools.iterateDate(futureDate, 1), 28));
 			req.set("periodicitySelection", "QUARTERLY");
 			
 			session.sendRequest(req, new CorrelationID(1));
@@ -96,7 +98,7 @@ public class Api {
 			}
 		}
 		catch(Exception e){
-			tools.exceptionEnd("error in setting up session", e);
+			Tools.exceptionEnd("error in setting up session", e);
 		}
 		return session;
 	}

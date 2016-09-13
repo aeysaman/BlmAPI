@@ -1,61 +1,31 @@
 package api;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class QuarterData {
-	int year, quarter;
-	String security;
+import general.Date;
+import general.Datum;
+public class QuarterData extends Datum{
 	double[] forward;
 	double[] premium;
-	List<Double> values;
+	//List<Double> values;
 	List<String> fields;
 	Value px;
 	
 	public QuarterData(List<String> fields, String security, int year, int quarter){
+		super(security, new Date(year, quarter));
 		this.fields = fields;
-		this.security = security;
-		this.year = year;
-		this.quarter = quarter;
 		this.forward = new double[3];
 		for(int i = 0; i<this.forward.length;i++)
 			this.forward[i] = -2;
 		this.premium = new double[3];
 		for(int i = 0; i<this.premium.length;i++)
 			this.premium[i] = 0;
-		this.values = new ArrayList<Double>();
-		for(int i = 0; i<fields.size(); i++)
-			this.values.add(null);
 		this.fields = fields;
 	}
-	//non-Static methods
-	public int missingCount() {
-		int count = 0;
-		for(Double s: values){
-			if(s == null)
-				count++;
-		}
-		return count;
-	}
-	public String exportDate(){
-		return year + "/" + ((quarter-1)*3+1) + "/01";
-	}
-	public Integer getDateCode(){
-		return year*10 + quarter;
-	}
-	private void enterMap(Map<String, Double> x) {
-		for(String f : x.keySet())
-			values.set(fields.indexOf(f), x.get(f));
-	}
-	public double fieldToVal(String field){
-		return this.values.get(this.fields.indexOf(field));
-	}
-	public boolean hasFieldVal(String field){
-		if(this.values.get(this.fields.indexOf(field))==null)
-			return false;
-		return true;
+	public int missingCount(){
+		return missingCount(fields);
 	}
 	public void setTerminalPrice(int i, double terminalPrice) {
 		this.premium[i] = terminalPrice;
@@ -80,8 +50,8 @@ public class QuarterData {
 		List<QuarterData> result = new LinkedList<QuarterData>();
 		for(DataGroup foo: rawData){
 			try{
-				QuarterData bar = quarters.get(foo.security).get(tools.convertToQuarter(foo.year, foo.month));
-				bar.enterMap(foo.values);
+				QuarterData bar = quarters.get(foo.name).get(foo.date.getQuarter());
+				bar.enterMap(foo.data);
 				if(foo.hasPx())
 					bar.px = foo.px;
 			}catch(NullPointerException e){
@@ -91,16 +61,15 @@ public class QuarterData {
 		for(Map<Integer, QuarterData> m : quarters.values()){
 			for(QuarterData q: m.values()){
 				if(q.px==null)
-					System.out.println("missing price: " + q.security +" " + q.exportDate());
+					System.out.println("missing price: " + q.name +" " + q.date.toString());
 				else
 					result.add(q);
 			}
 		}
 		return result;
 	}
-	//exporting
 	public String export(){
-		return security + "," + exportDate() + "," + exportDateNum() + "," + exportReturns(this.forward) + ","+ exportPremiums(this.premium) + "," + tools.joinListD(values);
+		return String.join(",", name, date.toString(), ""+date.getDateNumQrtDouble(), exportReturns(this.forward), exportPremiums(this.premium), exportDataJoined(fields));
 	}
 	public static String exportReturns(double[] bar){
 		String[] foo = {"null", "null", "null"};
@@ -112,9 +81,5 @@ public class QuarterData {
 	}
 	public static String exportPremiums(double[] bar){
 		return bar[0] + "," + bar[1] + "," + bar[2];
-	}
-	private String exportDateNum() {
-		double d = (double)year +((double)quarter-1)/4;
-		return "" + d;
 	}
 }

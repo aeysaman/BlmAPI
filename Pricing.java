@@ -9,7 +9,7 @@ import java.util.Set;
 
 import com.bloomberglp.blpapi.Service;
 import com.bloomberglp.blpapi.Session;
-
+import general.Tools;
 public class Pricing {
 	public static void setReturn(QuarterData x, Value current, Value forward, DataCollection dataC, int i) {
 		double rawRtn = (forward.value - current.value) / current.value;
@@ -20,21 +20,21 @@ public class Pricing {
 		
 		x.forward[i] = rawRtn - benchmark;
 		
-		System.out.println("Return for " + x.security + ": " + rawRtn + " - " + benchmark + " from "+ current.dateString() + " to " + forward.dateString());
+		System.out.printf("Return for %s: %f - %f from %s to %s\n", x.name, rawRtn, benchmark, current.date.toString(), forward.date.toString());
 	}
 	public static Value getIndexPrice(Value x, DataCollection dataC){
 		for(int i = 0; i<10; i++){
-			if(dataC.index.containsKey(x.iterateDownDateString(i)))
-				return dataC.index.get(x.iterateDownDateString(i));
+			if(dataC.index.containsKey(x.date.iterateDownDateString(i)))
+				return dataC.index.get(x.date.iterateDownDateString(i));
 		}
 		return null;
 	}
 	public static List<QuarterData> checkOtherQD(List<QuarterData> ls, Map<String, Map <Integer,QuarterData>> dataMap, DataCollection dataC, int qrt, int i){
 		List<QuarterData> notFound = new ArrayList<QuarterData>();
 		for(QuarterData current: ls){
-			Integer futureDate = tools.iterateDate(current.getDateCode(), qrt);
-			if(dataMap.get(current.security).containsKey(futureDate)){
-				QuarterData future = dataMap.get(current.security).get(futureDate);
+			Integer futureDate = Tools.iterateDate(current.getDateNumQrt(), qrt);
+			if(dataMap.get(current.name).containsKey(futureDate)){
+				QuarterData future = dataMap.get(current.name).get(futureDate);
 				setReturn(current, current.px,future.px, dataC, i);
 			}
 			else
@@ -45,7 +45,7 @@ public class Pricing {
 	public static List<QuarterData> checkTerminals(List<QuarterData> ls, DataCollection dataC, int qrt, int i){
 		List<QuarterData> notFound = new ArrayList<QuarterData>();
 		for(QuarterData current:ls){
-			Double terminalPrice = findTerminalPrice(current,tools.iterateDate(current.getDateCode(), qrt),dataC.terminalPrices);
+			Double terminalPrice = findTerminalPrice(current,Tools.iterateDate(current.getDateNumQrt(), qrt),dataC.terminalPrices);
 			if(terminalPrice!=null)
 				current.setTerminalPrice(i,terminalPrice);
 			else
@@ -54,17 +54,17 @@ public class Pricing {
 		return notFound;
 	}
 	public static Double findTerminalPrice(QuarterData x,Integer futureDate, Map<String, Value> prices){
-		if(prices.containsKey(x.security)){
-			if(futureDate>=prices.get(x.security).quarter)
-				return prices.get(x.security).value;
+		if(prices.containsKey(x.name)){
+			if(futureDate>=prices.get(x.name).quarter)
+				return prices.get(x.name).value;
 		}
 		return null;
 	}
 	public static List<QuarterData> checkBloomberg(List<QuarterData> ls, DataCollection dataC, Map<String,Map<Integer, Value>> foundPrices, int qrt, int i){
 		List<QuarterData> notFound = new ArrayList<QuarterData>();
 		for(QuarterData current:ls){
-			Integer futureDate = tools.iterateDate(current.getDateCode(), qrt);
-			Value future = queryFuturePrice(current.security,futureDate,foundPrices, dataC.session, dataC.service);
+			Integer futureDate = Tools.iterateDate(current.getDateNumQrt(), qrt);
+			Value future = queryFuturePrice(current.name,futureDate,foundPrices, dataC.session, dataC.service);
 			if(future !=null){
 				setReturn(current, current.px, future, dataC, i);
 			}
@@ -86,28 +86,28 @@ public class Pricing {
 	public static List<QuarterData> checkExisting(List<QuarterData> ls, DataCollection dataC, Map<String, Map <Integer,Value>> foundPrices ,int qrt, int i){
 		List<QuarterData> notFound = new ArrayList<QuarterData>();
 		for(QuarterData current:ls){
-			Integer futureDate = tools.iterateDate(current.getDateCode(), qrt);
+			Integer futureDate = Tools.iterateDate(current.getDateNumQrt(), qrt);
 			
-			if(!foundPrices.containsKey(current.security))
-				foundPrices.put(current.security, new HashMap<Integer, Value>());
+			if(!foundPrices.containsKey(current.name))
+				foundPrices.put(current.name, new HashMap<Integer, Value>());
 			
-			if(foundPrices.get(current.security).containsKey(futureDate))
-				setReturn(current, current.px ,foundPrices.get(current.security).get(futureDate), dataC, i);
+			if(foundPrices.get(current.name).containsKey(futureDate))
+				setReturn(current, current.px ,foundPrices.get(current.name).get(futureDate), dataC, i);
 			else
 				notFound.add(current);
 		}
 		return notFound;
 	}
 	public static void calculateForwards(DataCollection dataC){
-		Map<String, Map <Integer,QuarterData>> dataMap = tools.convertToMap(dataC.quarters);
+		Map<String, Map <Integer,QuarterData>> dataMap = Tools.convertToMap(dataC.quarters);
 		Map<String, Map <Integer,Value>> foundPrices = new HashMap<String, Map<Integer, Value>>();
 		Set<String> missing = new HashSet<String>();
 		
-		List<QuarterData> lsLookup = tools.removeEndYear(dataC.quarters, dataC.endYr);
+		List<QuarterData> lsLookup = Tools.removeEndYear(dataC.quarters, dataC.endYr);
 		for(int i = 0; i<dataC.forwardQrtrs.length;i++){
 			int qrt = dataC.forwardQrtrs[i];
 			
-			//Map<Integer, Double> mktPerc = tools.convertToPerc(dataC.index,qrt);
+			//Map<Integer, Double> mktPerc = Tools.convertToPerc(dataC.index,qrt);
 			
 			System.out.println("checking gathered data q" + qrt + " amount: " + lsLookup.size());
 			List<QuarterData> lsTerminal = checkOtherQD(lsLookup, dataMap, dataC, qrt, i);

@@ -1,40 +1,26 @@
 package api;
-import java.util.HashMap;
-import java.util.Map;
+import general.Date;
+import general.Datum;
 
-public class DataGroup {
+public class DataGroup extends Datum{
 	final String price ="PX_LAST";
-	
-	int year, month, day;
-	String security;
-	Map<String, Double> values;
 	Value px;
 	
-	public DataGroup(String security){
-		this.year = -1;
-		this.month = -1;
-		this.day = -1;
-		this.security = security;
-		this.values = new HashMap<String, Double>();
+	public DataGroup(String name){
+		super(name, null);
 		this.px =null;
 	}
-	
 	public void enterData(String field, String x){
-		if(field.equals("date")){
-			String[] bar = x.split("-");
-			this.year = Integer.parseInt(bar[0]);
-			this.month = Integer.parseInt(bar[1]);
-			this.day = Integer.parseInt(bar[2]);
-		}
-		else{
-			values.put(field, Double.parseDouble(x));
-		}
+		if(field.equals("date"))
+			date = Date.parseDate(x, "yyyy-mm-dd");
+		else
+			enterValue(field, Double.parseDouble(x));
 	}
 	//initializes px object and removes Price from the list
 	public void pxGen(){
-		if(values.containsKey(price)){
-			px = new Value(security,values.get(price), year, month,day);
-			values.remove(price);
+		if(hasValue(price)){
+			px = new Value(name, getValue(price), date);
+			removeValue(price);
 		}
 	}
 	public boolean hasPx(){

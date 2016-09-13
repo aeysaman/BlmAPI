@@ -1,42 +1,26 @@
 package api;
 
-
-public class Value {
-	String security;
+import general.Date;
+import general.Tools;
+public class Value{
+	String name;
 	Integer quarter;
 	double value;
-	int year;
-	int month;
-	int day;
+	public Date date;
 
-	public Value(String security, double value, int year, int month, int day){
-		this.security = security;
+	public Value(String name, double value, int year, int month, int day){
+		this.name = name;
 		this.value = value;
-		this.year = year;
-		this.month = month;
-		this.day = day;
-		this.quarter = tools.convertToQuarter(year, day);
-
+		this.date = new Date(year, month, day);
+		this.quarter = Tools.convertToQuarter(year, month);
+	}
+	public Value(String name, double value, Date date){
+		this.name = name;
+		this.value = value;
+		this.date = date;
+		this.quarter = Tools.convertToQuarter(date.year, date.month);
 	}
 	public String toString(){
-		return "Val: " + security + "; " + dateString() + "; " + value;
-	}
-	public String dateString(){
-		return year + "/" + month + "/" + day;
-	}
-	public String iterateDownDateString(int i){
-		int d = day -i;
-		int m = month;
-		int y = year;
-		if(d<1){
-			m--;
-			d+=30;
-		}
-		if(m<1){
-			y--;
-			m+=12;
-		}
-		return y + "/" + m + "/" + d;
-			
+		return String.format("%s @ %s = %f ", name, date.toString(), value);
 	}
 }
